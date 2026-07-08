@@ -1,0 +1,27 @@
+name: smart_emergency_sos
+description: An advanced Emergency SOS application with Smart Agency Routing, Voice Analysis, Silent Mode, and Hybrid Fallback.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.5
+  geolocator: ^10.1.0
+  speech_to_text: ^6.1.1
+  flutter_tts: ^3.8.3
+  flutter_blue_plus: ^1.31.0
+  url_launcher: ^6.2.5
+  google_maps_flutter: ^2.5.3
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
