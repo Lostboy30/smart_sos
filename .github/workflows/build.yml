@@ -29,15 +29,14 @@ jobs:
         flutter config --no-analytics
         flutter create --platforms=android --project-name=smartsos .
 
-    - name: Fix Android Gradle Version (The Ultimate Fix)
+    - name: Fix Android Gradle Version
       run: |
-        # ग्रैडल प्लगइन को पुराने और स्टेबल 8.0.0 वर्ज़न पर सेट करना ताकि newDsl का झंझट खत्म हो जाए
-        sed -i 's/id "com.android.application" version .*/id "com.android.application" version "8.0.0" apply false/' android/settings.gradle
-        sed -i 's/id "com.android.library" version .*/id "com.android.library" version "8.0.0" apply false/' android/settings.gradle
-        sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.8.20" apply false/' android/settings.gradle
+        # यहाँ हमने फाइल का नाम बदलकर .gradle.kts कर दिया है जो बिल्कुल सही है
+        sed -i 's/id("com.android.application") version .*/id("com.android.application") version "8.1.0" apply false/' android/settings.gradle.kts || true
+        sed -i 's/id("org.jetbrains.kotlin.android") version .*/id("org.jetbrains.kotlin.android") version "1.8.20" apply false/' android/settings.gradle.kts || true
         
-        # ग्रैडल रैपर को भी 8.0 वर्ज़न पर सेट करना
-        sed -i 's/gradle-.*-all.zip/gradle-8.0-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
+        # ग्रैडल रैपर को भी सही सेट कर रहे हैं
+        sed -i 's/gradle-.*-all.zip/gradle-8.1.1-all.zip/' android/gradle/wrapper/gradle-wrapper.properties || true
 
     - name: Install dependencies
       run: |
