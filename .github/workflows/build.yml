@@ -22,15 +22,17 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0' # सुपर-कंपैटिबल और स्टेबल वर्ज़न जो पैकेजेस को क्रैश नहीं होने देगा
+        flutter-version: '3.19.6'
 
-    - name: Core Flutter Setup
+    - name: Core Flutter Setup & Version Fix
       run: |
         flutter config --no-analytics
-        # अगर एंड्रॉइड फ़ोल्डर पहले से है तो उसे डिस्टर्ब नहीं करेगा, नहीं तो नया बनाएगा
+        # अगर एंड्रॉइड फोल्डर नहीं है तो बनाएंगे
         if [ ! -d "android" ]; then
-          flutter create --platforms=android --project-name=smartsos .
+          flutter create --platforms=android --language=java --project-name=smart_emergency_sos .
         fi
+        # ब्लूटूथ पैकेज के लिए minSdkVersion को जबरदस्ती 21 पर सेट करना
+        sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
 
     - name: Install dependencies
       run: |
@@ -38,4 +40,11 @@ jobs:
 
     - name: Build APK
       run: |
-        flutter build apk --release
+        flutter build apk --release --no-pub
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SmartSOS-Release-APK
+        path: build/app/outputs/flutter-apk/app-release.apk
+    
