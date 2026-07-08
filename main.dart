@@ -208,8 +208,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
       _speechWords = "EMERGENCY DETECTED: $type";
     });
 
-    // Check device online state
-    // For production, use connectivity_plus or check actual internet socket lookup.
     try {
       final response = await http.get(Uri.parse('https://clients3.google.com/generate_204')).timeout(const Duration(seconds: 3));
       _isOnline = response.statusCode == 204;
@@ -218,7 +216,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
     }
 
     if (type == "POLICE") {
-      // Police or Kidnapping activates Silent Mode
       _activateSilentMode();
     } else {
       _isSilentMode = false;
@@ -245,7 +242,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
     final lat = _currentPosition!.latitude;
     final lng = _currentPosition!.longitude;
     
-    // Replace with your Google Maps API Key
     const String apiKey = "YOUR_GOOGLE_PLACES_API_KEY";
     final url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
         '?location=$lat,$lng'
@@ -323,7 +319,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
     final lng = _currentPosition?.longitude ?? 0.0;
     final mapsLink = "https://maps.google.com/?q=$lat,$lng";
 
-    // 1. Send SMS to pre-saved numbers
     final String smsMessage = "ALERT! I have a $emergencyType emergency. My location is: $mapsLink";
     
     for (var contact in _emergencyContacts) {
@@ -334,7 +329,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
       }
     }
 
-    // 2. Play TTS local alert call simulator
     await _tts.setLanguage("en-US");
     await _tts.setSpeechRate(0.5);
     await _tts.setVolume(1.0);
@@ -349,7 +343,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
   @override
   Widget build(BuildContext context) {
     if (_isSilentMode) {
-      // Pure Silent Mode UI - Black screen, no light, long-press to exit
       return Scaffold(
         backgroundColor: Colors.black,
         body: GestureDetector(
@@ -360,7 +353,7 @@ class _SOSDashboardState extends State<SOSDashboard> {
             height: double.infinity,
             child: const Center(
               child: Text(
-                "", // Completely black screen for stealth
+                "", 
                 style: TextStyle(color: Colors.transparent),
               ),
             ),
@@ -390,7 +383,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Voice Indicator
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -417,7 +409,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
               ),
               const SizedBox(height: 16),
 
-              // Emergency Trigger Buttons (High Contrast)
               const Text("IMMEDIATE TRIGGERS", 
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 8),
@@ -438,7 +429,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
               ),
               const SizedBox(height: 20),
 
-              // Active Emergency Status Map / Content
               if (_activeEmergency.isNotEmpty) ...[
                 Text("ACTIVE SOS: $_activeEmergency", 
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _getEmergencyColor(_activeEmergency))),
@@ -447,7 +437,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
                   if (_isLoadingAgency)
                     const Center(child: CircularProgressIndicator())
                   else if (_nearestAgency != null) ...[
-                    // Agency Details Panel
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -493,7 +482,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
                   ] else
                     const Text("Finding nearest emergency station within 5km...")
                 ] else ...[
-                  // Offline Status Indicator
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -524,7 +512,6 @@ class _SOSDashboardState extends State<SOSDashboard> {
                 const SizedBox(height: 20),
               ],
 
-              // Emergency Contacts List
               const Text("EMERGENCY CONTACTS", 
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 8),
@@ -543,4 +530,49 @@ class _SOSDashboardState extends State<SOSDashboard> {
                       children: [
                         Text(contact['name']!, style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text("${contact['relationship']!} • ${contact['phone']!}", 
-                          styl
+                          style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.phone, color: Color(0xFF30D158)),
+                      onPressed: () => launchUrl(Uri.parse("tel:${contact['phone']}")),
+                    )
+                  ],
+                ),
+              )).toList(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSOSButton(String label, Color color, IconData icon) {
+    return InkWell(
+      onTap: () => _triggerEmergency(label),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.15),
+          border: Border.all(color: color, width: 2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 36),
+            const SizedBox(height: 8),
+            Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getEmergencyColor(String type) {
+    if (type == "FIRE") return const Color(0xFFFF453A);
+    if (type == "POLICE") return const Color(0xFF0A84FF);
+    if (type == "MEDICAL") return const Color(0xFF30D158);
+    return Colors.white;
+  }
+}
