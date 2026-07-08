@@ -22,21 +22,15 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        channel: 'stable'
+        flutter-version: '3.22.0' # सुपर-कंपैटिबल और स्टेबल वर्ज़न जो पैकेजेस को क्रैश नहीं होने देगा
 
     - name: Core Flutter Setup
       run: |
         flutter config --no-analytics
-        flutter create --platforms=android --project-name=smartsos .
-
-    - name: Fix Android Gradle Version
-      run: |
-        # यहाँ हमने फाइल का नाम बदलकर .gradle.kts कर दिया है जो बिल्कुल सही है
-        sed -i 's/id("com.android.application") version .*/id("com.android.application") version "8.1.0" apply false/' android/settings.gradle.kts || true
-        sed -i 's/id("org.jetbrains.kotlin.android") version .*/id("org.jetbrains.kotlin.android") version "1.8.20" apply false/' android/settings.gradle.kts || true
-        
-        # ग्रैडल रैपर को भी सही सेट कर रहे हैं
-        sed -i 's/gradle-.*-all.zip/gradle-8.1.1-all.zip/' android/gradle/wrapper/gradle-wrapper.properties || true
+        # अगर एंड्रॉइड फ़ोल्डर पहले से है तो उसे डिस्टर्ब नहीं करेगा, नहीं तो नया बनाएगा
+        if [ ! -d "android" ]; then
+          flutter create --platforms=android --project-name=smartsos .
+        fi
 
     - name: Install dependencies
       run: |
@@ -44,4 +38,4 @@ jobs:
 
     - name: Build APK
       run: |
-        flutter build apk --release --no-pub
+        flutter build apk --release
