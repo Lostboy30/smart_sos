@@ -24,18 +24,20 @@ jobs:
       with:
         flutter-version: '3.19.6'
 
+    - name: Generate Missing Android Project Files
+      run: |
+        # यहाँ फ़्लटर खुद ही गायब एंड्रॉइड फ़ोल्डर को बिल्कुल सही तरीके से तैयार करेगा
+        flutter create --platforms=android .
+        
+        # ब्लूटूथ और वॉयस फीचर के लिए minSdkVersion को बढ़ाकर 21 करना
+        sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
+
     - name: Install dependencies
       run: |
         flutter pub get
 
-    - name: Force Modern Android Version (Fix Bluetooth & Speech)
+    - name: Build APK (Final release)
       run: |
-        # ग्रैडल में बिना किसी फोल्डर झंझट के सीधे प्रोजेक्ट का न्यूनतम SDK वर्ज़न 21 सेट करना
-        flutter pub run flutter_blue_plus:add_permissions || true
-
-    - name: Build APK
-      run: |
-        # ब्लूटूथ और वॉइस प्लगइन्स के लिए सही सेटिंग्स के साथ बिल्ड शुरू करना
         flutter build apk --release
 
     - name: Upload APK Artifact
@@ -43,3 +45,4 @@ jobs:
       with:
         name: SmartSOS-Release-APK
         path: build/app/outputs/flutter-apk/app-release.apk
+        
