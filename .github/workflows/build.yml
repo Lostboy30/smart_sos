@@ -29,14 +29,20 @@ jobs:
         flutter config --no-analytics
         flutter create --platforms=android --project-name=smartsos .
 
+    - name: Fix Android Gradle Version (The Ultimate Fix)
+      run: |
+        # ग्रैडल प्लगइन को पुराने और स्टेबल 8.0.0 वर्ज़न पर सेट करना ताकि newDsl का झंझट खत्म हो जाए
+        sed -i 's/id "com.android.application" version .*/id "com.android.application" version "8.0.0" apply false/' android/settings.gradle
+        sed -i 's/id "com.android.library" version .*/id "com.android.library" version "8.0.0" apply false/' android/settings.gradle
+        sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.8.20" apply false/' android/settings.gradle
+        
+        # ग्रैडल रैपर को भी 8.0 वर्ज़न पर सेट करना
+        sed -i 's/gradle-.*-all.zip/gradle-8.0-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
+
     - name: Install dependencies
       run: |
         flutter pub get
 
     - name: Build APK
-      env:
-        # यह लाइन गिटहब को नए ग्रैडल रूल्स को ज़बरदस्ती लागू करने से रोकती है
-        _JAVA_OPTIONS: "-Dandroid.newDsl=false"
       run: |
         flutter build apk --release --no-pub
-        
