@@ -27,7 +27,7 @@ jobs:
 
     - name: Create Missing Android Directory
       run: |
-        flutter create . --platforms=android
+        flutter create --project-name=smartsos --platforms=android .
 
     - name: Restore original files
       run: |
