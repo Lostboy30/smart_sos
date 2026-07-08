@@ -28,19 +28,15 @@ jobs:
       run: |
         flutter config --no-analytics
         flutter create --platforms=android --project-name=smartsos .
-        # फ़ोर्स स्टेबल ग्रैडल वर्ज़न ताकि AGP 9.0 का एरर न आए
-        sed -i 's/com.android.application" version .*/com.android.application" version "8.1.0" apply false/' android/settings.gradle || true
 
     - name: Install dependencies
       run: |
         flutter pub get
 
     - name: Build APK
-      run: flutter build apk --release --no-pub
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-apk
-        path: build/app/outputs/flutter-apk/app-release.apk
-    
+      env:
+        # यह लाइन गिटहब को नए ग्रैडल रूल्स को ज़बरदस्ती लागू करने से रोकती है
+        _JAVA_OPTIONS: "-Dandroid.newDsl=false"
+      run: |
+        flutter build apk --release --no-pub
+        
