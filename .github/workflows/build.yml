@@ -13,31 +13,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: Set up Java (Latest Compatible)
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Set up Flutter
+    - name: Set up Modern Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.19.6'
+        flutter-version: '3.22.0' # यह वर्ज़न नए एंड्रॉयड ग्रैडल को बिना किसी एरर के सपोर्ट करता है
 
-    - name: Generate Missing Android Project Files
+    - name: Pre-Generate Android Project Structure
       run: |
-        # यहाँ फ़्लटर खुद ही गायब एंड्रॉइड फ़ोल्डर को बिल्कुल सही तरीके से तैयार करेगा
-        flutter create --platforms=android .
+        flutter config --no-analytics
+        # फ्रेश एंड्रॉयड फाइल्स जनरेट करना
+        flutter create --platforms=android --project-name=smart_emergency_sos .
         
-        # ब्लूटूथ और वॉयस फीचर के लिए minSdkVersion को बढ़ाकर 21 करना
+        # पैकेजेस की डिमांड के मुताबिक minSdkVersion को 21 करना
         sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
 
     - name: Install dependencies
       run: |
         flutter pub get
 
-    - name: Build APK (Final release)
+    - name: Build APK Release
       run: |
+        # बिना किसी पुराने कैशे के एकदम क्लीन बिल्ड करना
+        flutter build apk --clean
         flutter build apk --release
 
     - name: Upload APK Artifact
@@ -45,4 +48,4 @@ jobs:
       with:
         name: SmartSOS-Release-APK
         path: build/app/outputs/flutter-apk/app-release.apk
-        
+    
