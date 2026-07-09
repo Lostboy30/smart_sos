@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Java (Latest Compatible)
+    - name: Set up Java
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
@@ -22,15 +22,15 @@ jobs:
     - name: Set up Modern Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0' # यह वर्ज़न नए एंड्रॉयड ग्रैडल को बिना किसी एरर के सपोर्ट करता है
+        flutter-version: '3.22.0'
 
     - name: Pre-Generate Android Project Structure
       run: |
         flutter config --no-analytics
-        # फ्रेश एंड्रॉयड फाइल्स जनरेट करना
+        # बिल्कुल फ्रेश एंड्रॉयड फ़ाइलें बनाना
         flutter create --platforms=android --project-name=smart_emergency_sos .
         
-        # पैकेजेस की डिमांड के मुताबिक minSdkVersion को 21 करना
+        # पैकेजेस के लिए न्यूनतम SDK वर्ज़न को 21 सेट करना
         sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
 
     - name: Install dependencies
@@ -39,8 +39,7 @@ jobs:
 
     - name: Build APK Release
       run: |
-        # बिना किसी पुराने कैशे के एकदम क्लीन बिल्ड करना
-        flutter build apk --clean
+        # अब बिना किसी गलत फ्लैग के सीधे और साफ़ बिल्ड कमांड
         flutter build apk --release
 
     - name: Upload APK Artifact
