@@ -13,33 +13,37 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: Set up Java 17
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Set up Modern Flutter
+    - name: Set up Latest Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0'
+        flutter-version: '3.24.0' # सबसे नया स्टेबल वर्ज़न जो ग्रैडल एरर को खुद संभालता है
 
-    - name: Pre-Generate Android Project Structure
+    - name: Auto-Create and Fix Android Structure
       run: |
         flutter config --no-analytics
-        # बिल्कुल फ्रेश एंड्रॉयड फ़ाइलें बनाना
+        # फ्रेश एंड्रॉयड प्रोजेक्ट तैयार करना
         flutter create --platforms=android --project-name=smart_emergency_sos .
         
-        # पैकेजेस के लिए न्यूनतम SDK वर्ज़न को 21 सेट करना
+        # सभी प्लगइन्स के लिए आवश्यक minSdkVersion को 21 पर सेट करना
         sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
+        
+        # नए फ़्लटर वर्ज़न के मुताबिक कम्फर्टेबल सेटिंग्स फ़ोर्स करना
+        sed -i 's/compileSdkVersion .*/compileSdkVersion 34/' android/app/build.gradle
+        sed -i 's/targetSdkVersion .*/targetSdkVersion 34/' android/app/build.gradle
 
     - name: Install dependencies
       run: |
         flutter pub get
 
-    - name: Build APK Release
+    - name: Build Final APK Release
       run: |
-        # अब बिना किसी गलत फ्लैग के सीधे और साफ़ बिल्ड कमांड
+        # सीधा और साफ-सुथरा बिल्ड कमांड
         flutter build apk --release
 
     - name: Upload APK Artifact
@@ -47,4 +51,4 @@ jobs:
       with:
         name: SmartSOS-Release-APK
         path: build/app/outputs/flutter-apk/app-release.apk
-    
+        
