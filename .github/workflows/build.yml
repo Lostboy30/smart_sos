@@ -22,18 +22,25 @@ jobs:
     - name: Set up Latest Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.0' # सबसे नया स्टेबल वर्ज़न जो ग्रैडल एरर को खुद संभालता है
+        flutter-version: '3.24.0'
 
-    - name: Auto-Create and Fix Android Structure
+    - name: Create Complete Application Framework
       run: |
         flutter config --no-analytics
-        # फ्रेश एंड्रॉयड प्रोजेक्ट तैयार करना
+        # पुरानी अधूरी फाइलों का बैकअप लेना
+        mv lib/main.dart .
+        mv pubspec.yaml .
+        rm -rf lib
+        
+        # बिल्कुल शुरू से एक फुल-फ्लेज्ड वर्किंग ऐप स्ट्रक्चर तैयार करना
         flutter create --platforms=android --project-name=smart_emergency_sos .
         
-        # सभी प्लगइन्स के लिए आवश्यक minSdkVersion को 21 पर सेट करना
-        sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
+        # अपनी असली कोडिंग फाइलों को नए फ्रेमवर्क में वापस फिट करना
+        mv main.dart lib/main.dart
+        mv pubspec.yaml pubspec.yaml
         
-        # नए फ़्लटर वर्ज़न के मुताबिक कम्फर्टेबल सेटिंग्स फ़ोर्स करना
+        # ब्लूटूथ और वॉयस के लिए ग्रैडल सेटिंग्स को सीधे इंजेक्ट करना
+        sed -i 's/minSdkVersion .*/minSdkVersion 21/' android/app/build.gradle
         sed -i 's/compileSdkVersion .*/compileSdkVersion 34/' android/app/build.gradle
         sed -i 's/targetSdkVersion .*/targetSdkVersion 34/' android/app/build.gradle
 
@@ -43,7 +50,6 @@ jobs:
 
     - name: Build Final APK Release
       run: |
-        # सीधा और साफ-सुथरा बिल्ड कमांड
         flutter build apk --release
 
     - name: Upload APK Artifact
